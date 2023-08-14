@@ -1,0 +1,6 @@
+---
+- hosts: '{{ host_name }}'
+  become: true
+  roles:
+    - common
+...

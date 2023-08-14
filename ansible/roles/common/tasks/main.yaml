@@ -1,0 +1,36 @@
+- name: set timezone to Moscow
+  timezone:
+    name: Europe/Moscow
+
+# настройка локального репозитория, если переменная с его адресом существует
+- name: setup local repo
+  block:
+
+    - name: copy local repo file
+      template:
+        src: local.repo
+        dest: /etc/yum.repos.d/local.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: add local repo address
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: '{{ local_repo }} repo.local'
+
+    - name: Install base tools
+      ansible.builtin.dnf:
+        name:
+        - glibc-langpack-ru
+        - vim
+        - tcpdump
+        - wget
+        disablerepo: appstream,baseos,extras
+        enablerepo: local
+        disable_gpg_check: true
+        update_cache: yes
+        install_weak_deps: false
+
+  when: local_repo is defined
+

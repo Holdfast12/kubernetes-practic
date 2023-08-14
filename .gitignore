@@ -1,0 +1,4 @@
+.vagrant/
+*.vdi
+rpm/
+*.tar.gz
