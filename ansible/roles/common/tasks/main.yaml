@@ -2,6 +2,43 @@
   timezone:
     name: Europe/Moscow
 
+- name: resolve hosts
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    block: |
+      192.168.0.1 master
+      192.168.0.2 node1
+      192.168.0.3 node2
+
+- name: Disable SWAP
+  shell:
+    cmd: |
+      swapoff -a
+  args:
+    executable: /bin/bash
+
+- name: Remove Swap from fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: disable firewalld service
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+- name: disable selinux
+  ansible.posix.selinux:
+    state: disabled
+
+- name: ensure SELinux is set to disable mode
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+
 # настройка локального репозитория, если переменная с его адресом существует
 - name: setup local repo
   block:
@@ -31,6 +68,19 @@
         disable_gpg_check: true
         update_cache: yes
         install_weak_deps: false
+
+    - name: Install docker
+      ansible.builtin.dnf:
+        name:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        disablerepo: appstream,baseos,extras
+        enablerepo: local
+        disable_gpg_check: true
+        update_cache: yes
+        install_weak_deps: false
+      when: "'node' in inventory_hostname"
 
   when: local_repo is defined
 
