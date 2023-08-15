@@ -2,3 +2,4 @@
 *.vdi
 rpm/
 *.tar.gz
+*.tgz
