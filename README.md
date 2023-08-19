@@ -73,7 +73,8 @@ NAME                 REFERENCE                       TARGETS         MINPODS   M
 mikhail-deployment   Deployment/mikhail-deployment   <unknown>/80%   4         6         4          73s  
 
 
-меняем образ в деплойменте  
+меняем образ в деплойменте:
+
 C:\Users\michael\kubernetes-practic>kubectl rollout history deployment/mikhail-deployment  
 deployment.apps/mikhail-deployment  
 REVISION  CHANGE-CAUSE  
@@ -104,3 +105,14 @@ REVISION  CHANGE-CAUSE
 C:\Users\michael\kubernetes-practic>kubectl rollout undo deployment/mikhail-deployment   
 deployment.apps/mikhail-deployment rolled back  
 
+сразу на нужную версию
+C:\Users\michael\kubernetes-practic>kubectl rollout undo deployment/mikhail-deployment --to-revision=2
+deployment.apps/mikhail-deployment rolled back
+
+обновление контейнеров, чтобы загрузились актуальные latest версии !!!
+C:\Users\michael\kubernetes-practic>kubectl rollout restart deployment/mikhail-deployment
+deployment.apps/mikhail-deployment restarted
+
+создаем деплой по манифест-файлу
+C:\Users\michael\kubernetes-practic\deployments>kubectl apply -f deployment-first.yaml
+deployment.apps/my-web-deployment created

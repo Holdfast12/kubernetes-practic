@@ -1,0 +1,21 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: my-web-deployment
+  labels:
+    app: my-k8s-application
+spec:
+  selector:
+    matchLabels:
+      project: gbu
+  template:
+    metadata:
+      labels:
+        project: gbu
+    spec:
+      containers:
+        - name: gbu-web
+          image: nginx:latest
+          ports:
+            - containerPort: 80
