@@ -36,7 +36,10 @@ kubectl delete -f pod-myweb.yaml - удалить все что было зап�
 после редактирования манифеста еще раз - kubectl apply -f pod-myweb.yaml  
 обязательно использовать в манифестах лейблы  
 kubectl describe pods my-web  
---------------------------------------------------------
+
+
+
+
 kubectl get deployments  или  kubectl get deploy
 kubectl get deploy  
 
