@@ -1,0 +1,25 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: my-web-deployment-replicas
+  labels:
+    app: my-k8s-application
+    env: prod
+    owner: MikhailKalyujniy
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: ogv
+  template:
+    metadata:
+      labels:
+        project: ogv
+    spec:
+      containers:
+        - name: ogv-web
+          image: nginx:latest
+          ports:
+            - containerPort: 80

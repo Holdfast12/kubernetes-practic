@@ -1,0 +1,51 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: my-web-deployment-autoscaling
+  labels:
+    app: my-k8s-application
+    env: prod
+    owner: MikhailKalyujniy
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      project: sitoiv
+  template:
+    metadata:
+      labels:
+        project: sitoiv
+    spec:
+      containers:
+        - name: sitoiv-web
+          image: adv4000/k8sphp:latest
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/vbeta1v1
+    kind: Deployment
+    name: my-web-deployment-autoscaling
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
