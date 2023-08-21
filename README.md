@@ -116,3 +116,76 @@ deployment.apps/mikhail-deployment restarted
 создаем деплой по манифест-файлу
 C:\Users\michael\kubernetes-practic\deployments>kubectl apply -f deployment-first.yaml
 deployment.apps/my-web-deployment created
+
+деплой по манифест-файлу с репликами
+C:\Users\michael\kubernetes-practic\deployments>kubectl apply -f deployment-replicas.yaml
+deployment.apps/my-web-deployment-replicas created
+
+C:\Users\michael\kubernetes-practic\deployments>kubectl get deploy
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE  
+mikhail-deployment           4/4     4            4           7h59m
+my-web-deployment            1/1     1            1           87m  
+my-web-deployment-replicas   3/3     3            3           50s 
+
+перенаправил 80 порт одного пода из реплики на локалхост, зашел - работает :)
+C:\Users\michael\kubernetes-practic\deployments>kubectl port-forward my-web-deployment-replicas-55bb54494-rkf2f 8888:80 
+Forwarding from 127.0.0.1:8888 -> 80
+Forwarding from [::1]:8888 -> 80
+Handling connection for 8888
+
+посмотрел какие версии API автоскейлинга у меня есть, поправил манифест-файл
+C:\Users\michael\kubernetes-practic\deployments>kubectl api-versions | findstr autoscaling
+autoscaling/v1
+autoscaling/v2
+
+
+запустил деплой с автоскейлингом с манифест файла
+C:\Users\michael\kubernetes-practic\deployments>kubectl apply -f deployment-autoscaling.yaml
+deployment.apps/my-web-deployment-autoscaling unchanged
+horizontalpodautoscaler.autoscaling/my-autoscaling created
+
+
+смотрю инф по автоскейлингу
+C:\Users\michael\kubernetes-practic\deployments>kubectl get hpa
+NAME                 REFERENCE                                  TARGETS                        MINPODS   MAXPODS   REPLICAS   AGE
+mikhail-deployment   Deployment/mikhail-deployment              <unknown>/80%                  4         6         4          8h     
+my-autoscaling       Deployment/my-web-deployment-autoscaling   <unknown>/70%, <unknown>/80%   3         6         3          9m58s 
+
+еще информация будет по describe deployment
+
+для замены образа редактирую манифест-файл, потом снова apply
+
+для удаления - delete с указанием манифест-файла
+
+снести все деплойменты
+kubectl delete deployment --all
+
+сервисы
+
+ClusterIP - ip только внутри кластера
+NodePort - определенный порт на каждой ноде
+ExternalName - DNS CNAME Record
+LoadBalancer - только в облачных k8s кластерах (AWS, GCP, Azure)
+
+C:\Users\michael\kubernetes-practic\deployments>kubectl apply -f deployment-autoscaling.yaml         
+deployment.apps/my-web-deployment-autoscaling created
+horizontalpodautoscaler.autoscaling/my-autoscaling unchanged
+
+беру действующий деплоймент и применяю expose
+C:\Users\michael\kubernetes-practic\deployments>kubectl expose deployment my-web-deployment-autoscaling --type=ClusterIP --port 80
+service/my-web-deployment-autoscaling exposed
+
+смотрю сервисы на кластере (services можно сократить до svc - его алиас)
+C:\Users\michael\kubernetes-practic\deployments>kubectl get services
+NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+kubernetes                      ClusterIP   10.96.0.1        <none>        443/TCP   7d16h
+my-web-deployment-autoscaling   ClusterIP   10.108.184.200   <none>        80/TCP    8m5s
+
+теперь находясь на сервере ноды можно получить доступ к страничке на адресе 10.108.184.200
+при ClusterIP происходит балансировка по внутренним ip адресам сервиса в кластере.
+
+
+
+
+
+
